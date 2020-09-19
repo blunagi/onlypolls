@@ -26,7 +26,7 @@ def login():
         login_user(user, remember=credentials["remember"])
         return "Login successful"
 
-@api_bp.route("/get_polls")
+@api_bp.route("/poll", methods=["GET"])
 def get_polls():
     polls = Poll.query.all()
 
