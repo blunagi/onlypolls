@@ -41,7 +41,12 @@ def get_polls():
     for poll in polls:
         cur_poll = {
             "text": poll.text,
-            "choices": poll.choices,
+            "choices": 
+                [{
+                    "votes": len(choice.votes),
+                    "text": choice.text
+                } for choice in poll.choices]
+
             "id": poll.id
         }
         serialized_polls.append(cur_poll)
