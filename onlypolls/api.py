@@ -43,9 +43,8 @@ def get_polls():
 @api_bp.route("/poll/<id>", methods=["DELETE"])
 def delete_poll(id):
     # @nils add check if current user is poll author.
-    poll = Poll.query.filter_by(id=id).first()
+    Poll.query.filter_by(id=id).delete()
     Choice.query.filter_by(poll_id=id).delete()
-    db.session.delete(poll)
     db.session.commit()
     return "Data deleted!", 200
 
