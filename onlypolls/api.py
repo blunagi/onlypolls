@@ -33,7 +33,7 @@ def get_polls():
 
     for poll in polls:
         cur_poll = {
-            "title": poll.title,
+            "text": poll.text,
             "choices": poll.choices,
             "id": poll.id
         }
@@ -57,7 +57,7 @@ def get_poll(id):
         return "Poll not found", 404
 
     cur_poll = {
-        "title": poll.title,
+        "text": poll.text,
         "choices": [
             {
                 "val": choice.text,
@@ -71,8 +71,8 @@ def get_poll(id):
 @api_bp.route("/poll", methods=["POST"])
 @login_required
 def create_poll():
-    body = request.json
-    poll = Poll(title=body["title"], multiple_answers=body["multiple_answers"])
+    body = request.get_json()
+    poll = Poll(text=body["text"], multiple_answers=body["multiple_answers"])
     for choice in body["choices"]:
        db_choice = Choice(text=choice)
        poll.choices.append(db_choice)
