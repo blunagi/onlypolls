@@ -4,7 +4,11 @@ from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 
+from flask_cors import CORS
+
 app = Flask(__name__)
+# TODO: remove CORS
+CORS(app)
 
 app.secret_key = "asdlkfajfsdjffsdlkjdsfkljl"
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ["SQLITE_URL"]
