@@ -59,7 +59,7 @@ def get_poll(id):
         "text": poll.text,
         "choices": [
             {
-                "val": choice.text,
+                "text": choice.text,
                 "numVotes": len(Vote.query.filter_by(choice_id=choice.id))
             }
             for choice in poll.choices],
