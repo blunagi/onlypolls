@@ -2,7 +2,6 @@ import os
 
 from flask import Flask, Blueprint
 from flask_sqlalchemy import SQLAlchemy
-import flask_login
 
 app = Flask(__name__)
 
