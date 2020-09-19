@@ -7,6 +7,7 @@ class User(db.Model, flask_login.UserMixin):
     email = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
     polls = db.relationship('Poll', backref='author', lazy=True)
+    comments = db.relationship('Comment', backref='author', lazy=True)
     votes = db.relationship("Vote", backref='author', lazy=True)
 
 class Poll(db.Model):
