@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_login import login_user
+from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from onlypolls import db, login_manager, load_user
@@ -63,17 +63,15 @@ def get_poll(id):
     }
     return jsonify(cur_poll)
 
-@api_bp.route("/poll/create/<user_id>", methods=["POST"])
-def create_poll(user_id):
-    curr_user = load_user(user_id)
-    if curr_user:
-        body = request.json 
-        poll = Poll(title=body["title"], multiple_answers=body["multiple_answers"])
-        for choice in body["choices"]:
-           db_choice = Choice(text=choice)
-           poll.choices.append(db_choice)
-        curr_user.polls.append(poll)
-        db.session.add(poll)
-        db.session.commit()
-        return "Poll saved!", 200
-    return 401, "Not logged in"
+@api_bp.route("/poll", methods=["POST"])
+@login_required
+def create_poll():
+    body = request.json
+    poll = Poll(title=body["title"], multiple_answers=body["multiple_answers"])
+    for choice in body["choices"]:
+       db_choice = Choice(text=choice)
+       poll.choices.append(db_choice)
+    current_user.polls.append(poll)
+    db.session.add(poll)
+    db.session.commit()
+    return "Poll saved!", 200
