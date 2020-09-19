@@ -58,7 +58,12 @@ def get_poll(id):
 
     cur_poll = {
         "title": poll.title,
-        "choices": [choice.text for choice in poll.choices],
+        "choices": [
+            {
+                "val": choice.text,
+                "numVotes": len(Vote.query.filter_by(choice_id=choice.id))
+            }
+            for choice in poll.choices],
         "id": poll.id
     }
     return jsonify(cur_poll)
