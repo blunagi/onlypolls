@@ -1,5 +1,6 @@
 from onlypolls import db
 import flask_login
+from datetime import datetime
 
 class User(db.Model, flask_login.UserMixin):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -17,6 +18,7 @@ class Poll(db.Model):
     # TODO: consider setting a default value (as opposed to always specifying it)
     multiple_answers = db.Column(db.Boolean, nullable=False)
     choices = db.relationship('Choice', backref='poll', lazy=True)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
 class Choice(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
