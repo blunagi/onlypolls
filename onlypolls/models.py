@@ -20,7 +20,7 @@ class CommentParent(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    children = db.relationship('Comment', backref='parent', lazy=True)
+    children = db.relationship('Comment', remote_side=[id], backref='parent', lazy=True)
 
     type = db.Column(db.Text, nullable=False)
     __mapper_args__ = {
@@ -39,7 +39,7 @@ class Poll(CommentParent):
 
 class Choice(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
-    poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'), nullable=False)
+    poll_id = db.Column(db.Integer, db.ForeignKey('comment_parent.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
     votes = db.relationship("Vote", backref='choice', lazy=True)
 
