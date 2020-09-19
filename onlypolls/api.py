@@ -1,7 +1,8 @@
 from flask import Blueprint, jsonify, request
-from onlypolls import bcrypt, db, login_manager
+from onlypolls import db, login_manager
 from onlypolls.models import Choice, Poll, User
 from flask_login import login_user
+from werkzeug.security import generate_password_hash, check_password_hash
 
 CREATED = 201
 
@@ -14,7 +15,7 @@ def index():
 @api_bp.route("/user", methods=["POST"])
 def create_user():
     user = request.get_json()
-    db.session.add(User(username=user["username"], email=user["email"], password=bcrypt.generate_password_hash(user["password"])))
+    db.session.add(User(username=user["username"], email=user["email"], password=generate_password_hash(user["password"])))
     db.session.commit()
     return ("User created", CREATED)
 
@@ -22,7 +23,7 @@ def create_user():
 def login():
     credentials = request.get_json()
     user = User.query.filter(User.username == credentials["username"]).first()
-    if bcrypt.check_password_hash(user.password, credentials["password"]):
+    if check_password_hash(user.password, credentials["password"]):
         login_user(user, remember=credentials["remember"])
         return "Login successful"
 
