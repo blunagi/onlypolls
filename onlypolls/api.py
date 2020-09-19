@@ -60,7 +60,8 @@ def get_poll(id):
         "choices": [
             {
                 "text": choice.text,
-                "numVotes": len(Vote.query.filter_by(choice_id=choice.id))
+                # TODO: cache this value
+                "numVotes": Vote.query.filter_by(choice_id=choice.id).count()
             }
             for choice in poll.choices],
         "id": poll.id
