@@ -3,7 +3,7 @@ from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from onlypolls import db, login_manager, load_user
-from onlypolls.models import Choice, Poll, User
+from onlypolls.models import Choice, Poll, User, Vote
 
 CREATED = 201
 
@@ -20,7 +20,7 @@ def create_user():
 def login():
     credentials = request.get_json()
     user = User.query.filter(User.username == credentials["username"]).first()
-    if check_password_hash(user.password, credentials["password"]):
+    if user and check_password_hash(user.password, credentials["password"]):
         login_user(user, remember=credentials["remember"])
         return "Login successful"
     return "Unauthorized", 401
@@ -54,7 +54,7 @@ def get_poll(id):
     try:
         poll = Poll.query.filter_by(id=id).first()
     except:
-        return 404, "Poll not found"
+        return "Poll not found", 404
 
     cur_poll = {
         "title": poll.title,
@@ -75,3 +75,22 @@ def create_poll():
     db.session.add(poll)
     db.session.commit()
     return "Poll saved!", 200
+
+
+@api_bp.route("/poll/<id>/vote", methods=["POST"])
+def vote(id):
+
+    poll = Poll.query.filter_by(id=id).first()
+    
+    if not current_user:
+        return "Not logged in", 401
+    elif not poll:
+        return "Poll not found", 404
+    else:
+        vote = Vote(user_id=current_user.id)
+        choice = Choice.query.filter_by(text=request.json["choice"]).first()
+        if not choice:
+            return "Choice not found", 404
+        choice.votes.append(vote)
+        db.session.commit()
+        return "Successful vote", 200

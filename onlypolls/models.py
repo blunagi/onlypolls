@@ -7,6 +7,7 @@ class User(db.Model, flask_login.UserMixin):
     email = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
     polls = db.relationship('Poll', backref='author', lazy=True)
+    votes = db.relationship("Vote", backref='author', lazy=True)
 
 class Poll(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -20,4 +21,10 @@ class Choice(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     poll_id = db.Column(db.Integer, db.ForeignKey('poll.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
+    votes = db.relationship("Vote", backref='choice', lazy=True)
+
+class Vote(db.Model):
+    id = db.Column(db.Integer, primary_key=True, nullable=False)
+    choice_id = db.Column(db.Integer, db.ForeignKey('choice.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
