@@ -9,10 +9,10 @@ class User(db.Model, flask_login.UserMixin):
     # email = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
 
-    # TODO: merge polls and comments
-    polls = db.relationship('Poll', backref='author', lazy=True)
-    comments = db.relationship('Comment', backref='author', lazy=True)
-    votes = db.relationship("Vote", backref='author', lazy=True)
+    # TODO: merge polls and comments??????
+    polls = db.relationship('Poll', backref='author')
+    comments = db.relationship('Comment', backref='author')
+    votes = db.relationship("Vote", backref='author')
 
 class CommentParent(db.Model):
     __tablename__ = 'comment_parent'
@@ -20,7 +20,7 @@ class CommentParent(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    children = db.relationship('Comment', remote_side=[id], backref='parent', lazy=True)
+    children = db.relationship('Comment', remote_side=[id], backref='parent')
 
     type = db.Column(db.Text, nullable=False)
     __mapper_args__ = {
@@ -31,7 +31,7 @@ class CommentParent(db.Model):
 class Poll(CommentParent):
     # TODO: consider setting a default value (as opposed to always specifying it)
     multiple_answers = db.Column(db.Boolean, nullable=False)
-    choices = db.relationship('Choice', backref='poll', lazy=True)
+    choices = db.relationship('Choice', backref='poll')
 
     __mapper_args__ = {
         'polymorphic_identity': 'poll'
@@ -41,7 +41,7 @@ class Choice(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     poll_id = db.Column(db.Integer, db.ForeignKey('comment_parent.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
-    votes = db.relationship("Vote", backref='choice', lazy=True)
+    votes = db.relationship("Vote", backref='choice')
 
 class Vote(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
