@@ -8,18 +8,34 @@ class User(db.Model, flask_login.UserMixin):
     # TODO add back email???
     # email = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
+
+    # TODO: merge polls and comments
     polls = db.relationship('Poll', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='author', lazy=True)
     votes = db.relationship("Vote", backref='author', lazy=True)
 
-class Poll(db.Model):
+class CommentParent(db.Model):
+    __tablename__ = 'comment_parent'
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    title = db.Column(db.Text, nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    children = db.relationship('Comment', backref='parent', lazy=True)
+
+    type = db.Column(db.Text, nullable=False)
+    __mapper_args__ = {
+        'polymorphic_on': type,
+        'polymorphic_identity': 'comment_parent'
+    }
+
+class Poll(CommentParent):
     # TODO: consider setting a default value (as opposed to always specifying it)
     multiple_answers = db.Column(db.Boolean, nullable=False)
     choices = db.relationship('Choice', backref='poll', lazy=True)
-    date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'poll'
+    }
 
 class Choice(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
@@ -32,3 +48,9 @@ class Vote(db.Model):
     choice_id = db.Column(db.Integer, db.ForeignKey('choice.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
+class Comment(CommentParent):
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment_parent.id'), nullable=False)
+
+    __mapper_args__ = {
+        'polymorphic_identity': 'comment'
+    }

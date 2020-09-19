@@ -25,6 +25,13 @@ def login():
         return "Login successful"
     return "Unauthorized", 401
 
+@api_bp.route("/comment", methods=["POST"])
+@login_required
+def create_comment():
+    comment = request.get_json()
+    db.session.add(Comment(user_id=current_user.id, text=comment["text"], parent_id=comment["parent_id"]))
+    db.session.commit()
+
 @api_bp.route("/polls", methods=["GET"])
 def get_polls():
     polls = Poll.query.all()
