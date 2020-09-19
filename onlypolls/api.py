@@ -12,7 +12,7 @@ api_bp = Blueprint("api", __name__)
 @api_bp.route("/user", methods=["POST"])
 def create_user():
     user = request.get_json()
-    db.session.add(User(username=user["username"], email=user["email"], password=generate_password_hash(user["password"])))
+    db.session.add(User(username=user["username"], password=generate_password_hash(user["password"])))
     db.session.commit()
     return ("User created", CREATED)
 

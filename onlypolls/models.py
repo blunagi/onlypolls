@@ -5,7 +5,8 @@ from datetime import datetime
 class User(db.Model, flask_login.UserMixin):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     username = db.Column(db.Text, unique=True, nullable=False)
-    email = db.Column(db.Text, unique=True, nullable=False)
+    # TODO add back email???
+    # email = db.Column(db.Text, unique=True, nullable=False)
     password = db.Column(db.Text, nullable=False)
     polls = db.relationship('Poll', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='author', lazy=True)
