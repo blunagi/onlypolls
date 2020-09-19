@@ -79,7 +79,7 @@ def get_poll(id):
 @login_required
 def create_poll():
     body = request.get_json()
-    poll = Poll(title=body["title"], multiple_answers=body["multiple_answers"])
+    poll = Poll(text=body["text"], multiple_answers=body["multiple_answers"])
     for choice in body["choices"]:
        db_choice = Choice(text=choice)
        poll.choices.append(db_choice)
