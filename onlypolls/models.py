@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
+from onlypolls import db
 
-db = SQLAlchemy()
+class User(db.Model):
+    id = db.Column()
 
 class BaseModel(db.Model):
     """Base data model for all objects"""
