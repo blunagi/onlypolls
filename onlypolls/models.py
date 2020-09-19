@@ -29,5 +29,8 @@ class BaseModel(db.Model):
 class Poll(BaseModel):
     """model for one of your table"""
     __tablename__ = 'polls'
+
     # define your model
     id = db.Column(db.Integer, primary_key = True)
+    title = db.Column(db.String(256), nullable=False)
+    user_id = db.Column()
