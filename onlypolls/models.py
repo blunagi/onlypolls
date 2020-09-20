@@ -41,6 +41,21 @@ class Poll(CommentParent):
 
     __mapper_args__ = {"polymorphic_identity": "poll"}
 
+    def get_poll(self):
+        return {
+            "id": self.id,
+            "text": self.text,
+            "multiple_answers": self.multiple_answers,
+            "choices": [
+                {
+                    "id": choice.id,
+                    "text": choice.text,
+                    "numVotes": Vote.query.filter_by(choice_id=choice.id).count(),
+                }
+                for choice in self.choices
+            ],
+        }
+
 
 class Choice(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)

@@ -57,21 +57,7 @@ def get_comments(poll_id):
 
 @api_bp.route("/polls", methods=["GET"])
 def get_polls():
-    polls = Poll.query.all()
-
-    serialized_polls = []
-
-    for poll in polls:
-        cur_poll = {
-            "text": poll.text,
-            "choices": [
-                {"id": choice.id, "votes": len(choice.votes), "text": choice.text}
-                for choice in poll.choices
-            ],
-            "id": poll.id,
-        }
-        serialized_polls.append(cur_poll)
-    return jsonify(serialized_polls)
+    return jsonify([poll.get_poll() for poll in Poll.query.all()])
 
 
 @api_bp.route("/poll/<id>", methods=["DELETE"])
@@ -85,25 +71,7 @@ def delete_poll(id):
 
 @api_bp.route("/poll/<id>", methods=["GET"])
 def get_poll(id):
-    try:
-        poll = Poll.query.filter_by(id=id).first()
-    except:
-        return "Poll not found", 404
-
-    cur_poll = {
-        "text": poll.text,
-        "choices": [
-            {
-                "id": choice.id,
-                "text": choice.text,
-                # TODO: cache this value
-                "numVotes": Vote.query.filter_by(choice_id=choice.id).count(),
-            }
-            for choice in poll.choices
-        ],
-        "id": poll.id,
-    }
-    return jsonify(cur_poll)
+    return jsonify(Poll.query.filter_by(id=id).first().get_poll())
 
 
 @api_bp.route("/poll", methods=["POST"])
