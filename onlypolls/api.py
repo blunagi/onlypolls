@@ -123,25 +123,22 @@ def create_poll():
         db_choice = Choice(text=choice)
         poll.choices.append(db_choice)
     current_user.polls.append(poll)
-    db.session.add(poll)
     db.session.commit()
     return "Poll saved!", 200
 
 
-@api_bp.route("/poll/<id>/vote", methods=["POST"])
-def vote(id):
-
-    poll = Poll.query.filter_by(id=id).first()
-
-    if not current_user:
-        return "Not logged in", 401
-    elif not poll:
-        return "Poll not found", 404
-    else:
-        vote = Vote(user_id=current_user.id)
-        choice = Choice.query.filter_by(text=request.json["choice"]).first()
-        if not choice:
-            return "Choice not found", 404
+@api_bp.route("/vote", methods=["POST"])
+@login_required
+def vote():
+    """
+    {
+        "choice": 2
+    }
+    """
+    vote = Vote(user_id=current_user.id)
+    choice = Choice.query.filter_by(id=request.json["choice"]).first()
+    if choice:
         choice.votes.append(vote)
+        # TODO: check if this actually work or .add() still needs to be used
         db.session.commit()
         return "Successful vote", 200
