@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_login import login_required, login_user, current_user
+from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from onlypolls import db, login_manager, load_user
@@ -34,6 +34,12 @@ def login():
         return "Login successful"
     return "Unauthorized", 401
 
+@api_bp.route("/logout", methods=["POST"])
+@login_required
+def logout():
+    logout_user()
+    # TODO: redirect to a webpage
+    return "Logged out successfully", 200
 
 @api_bp.route("/comment", methods=["POST"])
 @login_required
