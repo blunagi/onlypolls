@@ -106,10 +106,18 @@ def vote():
         "choice": 2
     }
     """
-    vote = Vote(user_id=current_user.id)
     choice = Choice.query.filter_by(id=request.json["choice"]).first()
+    poll = choice.poll
+    # TODO: improve this crap
+    for choicei in poll.choices:
+        for vote in choicei.votes:
+            if poll.multiple_answers:
+                if vote.user_id == current_user.id and vote.choice_id == request.json["choice"]:
+                    return "Already voted", 401
+            elif vote.user_id == current_user.id:
+                return "Already voted", 401
+
     if choice:
-        choice.votes.append(vote)
-        # TODO: check if this actually work or .add() still needs to be used
+        choice.votes.append(Vote(user_id=current_user.id))
         db.session.commit()
         return "Successful vote", 200
