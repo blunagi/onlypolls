@@ -26,12 +26,9 @@ def create_user():
 
 
 @api_bp.route("/user", methods=["GET"])
+@login_required
 def logged_in():
-    if current_user.is_authenticated:
-        return jsonify(True)
-    else:
-        return jsonify(False)
-
+    return "Success!!", 200
 
 @api_bp.route("/login", methods=["POST"])
 def login():
