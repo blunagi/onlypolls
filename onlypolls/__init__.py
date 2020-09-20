@@ -6,6 +6,10 @@ from flask_login import LoginManager
 import flask_cors
 
 app = Flask(__name__)
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE='Lax',
+)
 # TODO: remove CORS
 cors = flask_cors.CORS(app, supports_credentials=True)
 
