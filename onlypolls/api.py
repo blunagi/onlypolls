@@ -13,6 +13,9 @@ api_bp = Blueprint("api", __name__)
 @api_bp.route("/user", methods=["POST"])
 def create_user():
     user = request.get_json()
+    same_username = User.query.filter_by(username=user["username"]).first()
+    if same_username:
+        return "User with same username already exists", 400
     db.session.add(
         User(
             username=user["username"], password=generate_password_hash(user["password"])
