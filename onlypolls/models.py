@@ -41,7 +41,7 @@ class Poll(CommentParent):
 
     __mapper_args__ = {"polymorphic_identity": "poll"}
 
-    def get_poll(self):
+    def get_poll(self, user_id_voter=None):
         return {
             "id": self.id,
             "text": self.text,
@@ -50,6 +50,9 @@ class Poll(CommentParent):
                 {
                     "id": choice.id,
                     "text": choice.text,
+                    "voted": False
+                    if not user_id_voter
+                    else choice.votes.filter_by(user_id=user_id_voter).count() == 1,
                     "numVotes": Vote.query.filter_by(choice_id=choice.id).count(),
                 }
                 for choice in self.choices
@@ -61,7 +64,7 @@ class Choice(db.Model):
     id = db.Column(db.Integer, primary_key=True, nullable=False)
     poll_id = db.Column(db.Integer, db.ForeignKey("comment_parent.id"), nullable=False)
     text = db.Column(db.Text, nullable=False)
-    votes = db.relationship("Vote", backref="choice")
+    votes = db.relationship("Vote", backref="choice", lazy='dynamic')
 
 
 class Vote(db.Model):

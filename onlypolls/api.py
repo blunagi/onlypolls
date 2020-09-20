@@ -34,12 +34,14 @@ def login():
         return "Login successful"
     return "Unauthorized", 401
 
+
 @api_bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()
     # TODO: redirect to a webpage
     return "Logged out successfully", 200
+
 
 @api_bp.route("/comment", methods=["POST"])
 @login_required
@@ -63,7 +65,11 @@ def get_comments(poll_id):
 
 @api_bp.route("/polls", methods=["GET"])
 def get_polls():
-    return jsonify([poll.get_poll() for poll in Poll.query.all()])
+    if current_user.is_authenticated:
+        user = current_user.id
+    else:
+        user = None
+    return jsonify([poll.get_poll(user) for poll in Poll.query.all()])
 
 
 @api_bp.route("/poll/<id>", methods=["DELETE"])
@@ -77,6 +83,10 @@ def delete_poll(id):
 
 @api_bp.route("/poll/<id>", methods=["GET"])
 def get_poll(id):
+    if current_user.is_authenticated:
+        user = current_user.id
+    else:
+        user = None
     return jsonify(Poll.query.filter_by(id=id).first().get_poll())
 
 
@@ -118,7 +128,10 @@ def vote():
     for choicei in poll.choices:
         for vote in choicei.votes:
             if poll.multiple_answers:
-                if vote.user_id == current_user.id and vote.choice_id == request.json["choice"]:
+                if (
+                    vote.user_id == current_user.id
+                    and vote.choice_id == request.json["choice"]
+                ):
                     return "Already voted", 401
             elif vote.user_id == current_user.id:
                 return "Already voted", 401
