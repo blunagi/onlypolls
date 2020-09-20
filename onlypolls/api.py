@@ -91,6 +91,7 @@ def get_poll(id):
         "text": poll.text,
         "choices": [
             {
+                "id": choice.id,
                 "text": choice.text,
                 # TODO: cache this value
                 "numVotes": Vote.query.filter_by(choice_id=choice.id).count(),
