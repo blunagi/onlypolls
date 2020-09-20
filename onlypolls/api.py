@@ -62,7 +62,7 @@ def get_polls():
         cur_poll = {
             "text": poll.text,
             "choices": [
-                {"votes": len(choice.votes), "text": choice.text}
+                {"id": choice.id, "votes": len(choice.votes), "text": choice.text}
                 for choice in poll.choices
             ],
             "id": poll.id,
