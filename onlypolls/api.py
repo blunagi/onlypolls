@@ -9,12 +9,18 @@ CREATED = 201
 
 api_bp = Blueprint("api", __name__)
 
+
 @api_bp.route("/user", methods=["POST"])
 def create_user():
     user = request.get_json()
-    db.session.add(User(username=user["username"], password=generate_password_hash(user["password"])))
+    db.session.add(
+        User(
+            username=user["username"], password=generate_password_hash(user["password"])
+        )
+    )
     db.session.commit()
-    return ("User created", CREATED)
+    return "User created", CREATED
+
 
 @api_bp.route("/login", methods=["POST"])
 def login():
@@ -25,17 +31,26 @@ def login():
         return "Login successful"
     return "Unauthorized", 401
 
+
 @api_bp.route("/comment", methods=["POST"])
 @login_required
 def create_comment():
     comment = request.get_json()
-    db.session.add(Comment(user_id=current_user.id, text=comment["text"], parent_id=comment["parent_id"]))
+    db.session.add(
+        Comment(
+            user_id=current_user.id,
+            text=comment["text"],
+            parent_id=comment["parent_id"],
+        )
+    )
     db.session.commit()
     return "Comment created", CREATED
+
 
 @api_bp.route("/poll/<int:poll_id>/comments", methods=["GET"])
 def get_comments(poll_id):
     return jsonify(Poll.query.filter_by(id=poll_id).first().get_comments())
+
 
 @api_bp.route("/polls", methods=["GET"])
 def get_polls():
@@ -46,16 +61,15 @@ def get_polls():
     for poll in polls:
         cur_poll = {
             "text": poll.text,
-            "choices": 
-                [{
-                    "votes": len(choice.votes),
-                    "text": choice.text
-                } for choice in poll.choices]
-
-            "id": poll.id
+            "choices": [
+                {"votes": len(choice.votes), "text": choice.text}
+                for choice in poll.choices
+            ],
+            "id": poll.id,
         }
         serialized_polls.append(cur_poll)
     return jsonify(serialized_polls)
+
 
 @api_bp.route("/poll/<id>", methods=["DELETE"])
 def delete_poll(id):
@@ -64,6 +78,7 @@ def delete_poll(id):
     Choice.query.filter_by(poll_id=id).delete()
     db.session.commit()
     return "Data deleted!", 200
+
 
 @api_bp.route("/poll/<id>", methods=["GET"])
 def get_poll(id):
@@ -78,12 +93,14 @@ def get_poll(id):
             {
                 "text": choice.text,
                 # TODO: cache this value
-                "numVotes": Vote.query.filter_by(choice_id=choice.id).count()
+                "numVotes": Vote.query.filter_by(choice_id=choice.id).count(),
             }
-            for choice in poll.choices],
-        "id": poll.id
+            for choice in poll.choices
+        ],
+        "id": poll.id,
     }
     return jsonify(cur_poll)
+
 
 @api_bp.route("/poll", methods=["POST"])
 @login_required
@@ -102,8 +119,8 @@ def create_poll():
     body = request.get_json()
     poll = Poll(text=body["text"], multiple_answers=body["multiple_answers"])
     for choice in body["choices"]:
-       db_choice = Choice(text=choice)
-       poll.choices.append(db_choice)
+        db_choice = Choice(text=choice)
+        poll.choices.append(db_choice)
     current_user.polls.append(poll)
     db.session.add(poll)
     db.session.commit()
@@ -114,7 +131,7 @@ def create_poll():
 def vote(id):
 
     poll = Poll.query.filter_by(id=id).first()
-    
+
     if not current_user:
         return "Not logged in", 401
     elif not poll:
