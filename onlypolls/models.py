@@ -20,7 +20,7 @@ class CommentParent(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     text = db.Column(db.Text, nullable=False)
     date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    children = db.relationship('Comment', remote_side=[id], backref='parent')
+    children = db.relationship('Comment', remote_side='Comment.parent_id')
 
     type = db.Column(db.Text, nullable=False)
     __mapper_args__ = {
@@ -28,9 +28,15 @@ class CommentParent(db.Model):
         'polymorphic_identity': 'comment_parent'
     }
 
+    def get_comments(self):
+        comments = []
+        for child in self.children:
+            comments.append(child.get_comment_tree())
+        return comments
+
 class Poll(CommentParent):
     # TODO: consider setting a default value (as opposed to always specifying it)
-    multiple_answers = db.Column(db.Boolean, nullable=False)
+    multiple_answers = db.Column(db.Boolean)
     choices = db.relationship('Choice', backref='poll')
 
     __mapper_args__ = {
@@ -49,8 +55,20 @@ class Vote(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 class Comment(CommentParent):
-    parent_id = db.Column(db.Integer, db.ForeignKey('comment_parent.id'), nullable=False)
+    parent_id = db.Column(db.Integer, db.ForeignKey('comment_parent.id'))
 
     __mapper_args__ = {
         'polymorphic_identity': 'comment'
     }
+
+    def get_comment_tree(self):
+        comment = {
+                "id": self.id,
+                "username": self.author.username,
+                "text": self.text,
+                "date": self.date,
+                "children": []
+                }
+        for child in self.children:
+            comment["children"].append(child.get_comment_tree())
+        return comment

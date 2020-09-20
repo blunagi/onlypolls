@@ -3,7 +3,7 @@ from flask_login import login_required, login_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from onlypolls import db, login_manager, load_user
-from onlypolls.models import Choice, Poll, User, Vote
+from onlypolls.models import Choice, Comment, Poll, User, Vote
 
 CREATED = 201
 
@@ -31,6 +31,11 @@ def create_comment():
     comment = request.get_json()
     db.session.add(Comment(user_id=current_user.id, text=comment["text"], parent_id=comment["parent_id"]))
     db.session.commit()
+    return "Comment created", CREATED
+
+@api_bp.route("/poll/<int:poll_id>/comments", methods=["GET"])
+def get_comments(poll_id):
+    return jsonify(Poll.query.filter_by(id=poll_id).first().get_comments())
 
 @api_bp.route("/polls", methods=["GET"])
 def get_polls():
