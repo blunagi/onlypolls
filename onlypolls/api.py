@@ -83,6 +83,17 @@ def get_poll(id):
 @api_bp.route("/poll", methods=["POST"])
 @login_required
 def create_poll():
+    """
+    {
+        "text": "Question",
+        "multiple_answers": true,
+        "choices": [
+            "Choice 1",
+            "Choice 2",
+            "Choice 3"
+        ]
+    }
+    """
     body = request.get_json()
     poll = Poll(text=body["text"], multiple_answers=body["multiple_answers"])
     for choice in body["choices"]:
